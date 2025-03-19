@@ -1,15 +1,9 @@
 
 import React from "react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
-import { FilterState } from "@/utils/types";
+import { Badge } from "@/components/ui/badge";
+import { Check, RefreshCw, X } from "lucide-react";
+import { FilterState, QuestionStatus } from "@/utils/types";
 import StatusBadge from "./StatusBadge";
 
 interface FilterProps {
@@ -34,212 +28,193 @@ const Filter: React.FC<FilterProps> = ({
   testNumbers,
   counts,
 }) => {
-  const handleReset = (type: "correct" | "wrong" | "all") => {
-    if (type === "all") {
-      setFilterState({
-        ...filterState,
-        subject: null,
-        topic: null,
-        testNumber: null,
-        status: null,
-      });
-    } else {
-      setFilterState({
-        ...filterState,
-        status: null,
-      });
-    }
+  // Reset filter handlers
+  const resetCorrect = () => {
+    // This would reset all items with "correct" status to "unattempted"
+    // In a real app, this would call an API to update the data
+    console.log("Reset correct");
+  };
+
+  const resetWrong = () => {
+    // This would reset all items with "wrong" status to "unattempted"
+    console.log("Reset wrong");
+  };
+
+  const resetAll = () => {
+    // This would reset all statuses to "unattempted"
+    console.log("Reset all");
   };
 
   return (
-    <div className="filter-section animate-slide-up">
-      <div className="space-y-2">
-        <h3 className="text-sm font-medium">Filters</h3>
-        
+    <div className="space-y-6">
+      <div className="p-4 border rounded-lg shadow-sm">
+        <h3 className="font-medium mb-4">Filters</h3>
+
+        {/* Test Numbers Filter (only for Test App) */}
         {testNumbers && (
-          <div className="space-y-1.5">
-            <label className="text-xs text-muted-foreground">Test Number</label>
-            <Select
-              value={filterState.testNumber?.toString() || ""}
-              onValueChange={(value) =>
-                setFilterState({
-                  ...filterState,
-                  testNumber: value ? parseInt(value) : null,
-                  subject: null,
-                  topic: null,
-                })
-              }
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select test number" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All Tests</SelectItem>
-                {testNumbers.map((num) => (
-                  <SelectItem key={num} value={num.toString()}>
-                    Test {num}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="mb-4">
+            <h4 className="text-sm font-medium mb-2">Test Number</h4>
+            <div className="flex flex-wrap gap-2">
+              {testNumbers.map((num) => (
+                <Badge
+                  key={num}
+                  variant={
+                    filterState.testNumber === num ? "default" : "outline"
+                  }
+                  className="cursor-pointer"
+                  onClick={() =>
+                    setFilterState((prev) => ({
+                      ...prev,
+                      testNumber:
+                        prev.testNumber === num ? null : num,
+                      // Reset subject and topic when test changes
+                      subject: prev.testNumber === num ? prev.subject : null,
+                      topic: prev.testNumber === num ? prev.topic : null,
+                    }))
+                  }
+                >
+                  {filterState.testNumber === num && (
+                    <Check className="mr-1 h-3 w-3" />
+                  )}
+                  Test {num}
+                </Badge>
+              ))}
+            </div>
           </div>
         )}
 
-        <div className="space-y-1.5">
-          <label className="text-xs text-muted-foreground">Subject</label>
-          <Select
-            value={filterState.subject || ""}
-            onValueChange={(value) =>
-              setFilterState({
-                ...filterState,
-                subject: value || null,
-                topic: null,
-              })
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select subject" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Subjects</SelectItem>
-              {subjects.map((subject) => (
-                <SelectItem key={subject} value={subject}>
-                  {subject}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Subject Filter */}
+        <div className="mb-4">
+          <h4 className="text-sm font-medium mb-2">Subject</h4>
+          <div className="flex flex-wrap gap-2">
+            {subjects.map((subject) => (
+              <Badge
+                key={subject}
+                variant={
+                  filterState.subject === subject ? "default" : "outline"
+                }
+                className="cursor-pointer"
+                onClick={() =>
+                  setFilterState((prev) => ({
+                    ...prev,
+                    subject: prev.subject === subject ? null : subject,
+                    // Reset topic when subject changes
+                    topic: prev.subject === subject ? prev.topic : null,
+                  }))
+                }
+              >
+                {filterState.subject === subject && (
+                  <Check className="mr-1 h-3 w-3" />
+                )}
+                {subject}
+              </Badge>
+            ))}
+          </div>
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs text-muted-foreground">Topic</label>
-          <Select
-            value={filterState.topic || ""}
-            onValueChange={(value) =>
-              setFilterState({
-                ...filterState,
-                topic: value || null,
-              })
-            }
-            disabled={!filterState.subject}
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select topic" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">All Topics</SelectItem>
+        {/* Topic Filter */}
+        {filterState.subject && topics.length > 0 && (
+          <div className="mb-4">
+            <h4 className="text-sm font-medium mb-2">Topic</h4>
+            <div className="flex flex-wrap gap-2">
               {topics.map((topic) => (
-                <SelectItem key={topic} value={topic}>
+                <Badge
+                  key={topic}
+                  variant={
+                    filterState.topic === topic ? "default" : "outline"
+                  }
+                  className="cursor-pointer"
+                  onClick={() =>
+                    setFilterState((prev) => ({
+                      ...prev,
+                      topic: prev.topic === topic ? null : topic,
+                    }))
+                  }
+                >
+                  {filterState.topic === topic && (
+                    <Check className="mr-1 h-3 w-3" />
+                  )}
                   {topic}
-                </SelectItem>
+                </Badge>
               ))}
-            </SelectContent>
-          </Select>
+            </div>
+          </div>
+        )}
+
+        {/* Status Filter */}
+        <div>
+          <h4 className="text-sm font-medium mb-2">Status</h4>
+          <div className="flex flex-wrap gap-2">
+            {(["correct", "wrong", "unattempted"] as QuestionStatus[]).map(
+              (status) => (
+                <Badge
+                  key={status}
+                  variant={
+                    filterState.status === status ? "default" : "outline"
+                  }
+                  className="cursor-pointer"
+                  onClick={() =>
+                    setFilterState((prev) => ({
+                      ...prev,
+                      status: prev.status === status ? null : status,
+                    }))
+                  }
+                >
+                  {filterState.status === status && (
+                    <Check className="mr-1 h-3 w-3" />
+                  )}
+                  <StatusBadge
+                    status={status}
+                    showLabel={false}
+                    className="mr-1"
+                  />
+                  {status === "correct" && counts.correct}
+                  {status === "wrong" && counts.wrong}
+                  {status === "unattempted" && counts.unattempted}
+                </Badge>
+              )
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="border-t border-border/50 my-4" />
-
-      <div className="space-y-2">
-        <h3 className="text-sm font-medium">Status</h3>
-        
-        <div className="grid grid-cols-3 gap-2">
-          <button
-            className={`p-2 rounded-md text-center text-xs flex flex-col items-center justify-center gap-1 transition-colors ${
-              filterState.status === "correct"
-                ? "bg-status-correct/20 border border-status-correct/30"
-                : "bg-secondary hover:bg-secondary/80 border border-transparent"
-            }`}
-            onClick={() =>
-              setFilterState({
-                ...filterState,
-                status:
-                  filterState.status === "correct" ? null : "correct",
-              })
-            }
-          >
-            <StatusBadge status="correct" showLabel={false} />
-            <span>Correct</span>
-            <span className="font-semibold">{counts.correct}</span>
-          </button>
-          
-          <button
-            className={`p-2 rounded-md text-center text-xs flex flex-col items-center justify-center gap-1 transition-colors ${
-              filterState.status === "wrong"
-                ? "bg-status-wrong/20 border border-status-wrong/30"
-                : "bg-secondary hover:bg-secondary/80 border border-transparent"
-            }`}
-            onClick={() =>
-              setFilterState({
-                ...filterState,
-                status:
-                  filterState.status === "wrong" ? null : "wrong",
-              })
-            }
-          >
-            <StatusBadge status="wrong" showLabel={false} />
-            <span>Wrong</span>
-            <span className="font-semibold">{counts.wrong}</span>
-          </button>
-          
-          <button
-            className={`p-2 rounded-md text-center text-xs flex flex-col items-center justify-center gap-1 transition-colors ${
-              filterState.status === "unattempted"
-                ? "bg-status-unattempted/20 border border-status-unattempted/30"
-                : "bg-secondary hover:bg-secondary/80 border border-transparent"
-            }`}
-            onClick={() =>
-              setFilterState({
-                ...filterState,
-                status:
-                  filterState.status === "unattempted" ? null : "unattempted",
-              })
-            }
-          >
-            <StatusBadge status="unattempted" showLabel={false} />
-            <span>Unattempted</span>
-            <span className="font-semibold">{counts.unattempted}</span>
-          </button>
-        </div>
+      {/* Reset Actions */}
+      <div className="p-4 border rounded-lg space-y-3">
+        <h3 className="font-medium mb-2">Actions</h3>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start text-status-correct"
+          onClick={resetCorrect}
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Reset Correct
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start text-status-wrong"
+          onClick={resetWrong}
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Reset Wrong
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start"
+          onClick={resetAll}
+        >
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Reset All
+        </Button>
       </div>
 
-      <div className="border-t border-border/50 my-4" />
-      
-      <div className="space-y-2">
-        <h3 className="text-sm font-medium">Reset</h3>
-        <div className="grid grid-cols-2 gap-2">
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full text-xs"
-            onClick={() => handleReset("all")}
-          >
-            <RefreshCw className="mr-1 h-3 w-3" />
-            Reset All
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full text-xs text-status-correct"
-            onClick={() => handleReset("correct")}
-          >
-            <RefreshCw className="mr-1 h-3 w-3" />
-            Reset Correct
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            className="w-full text-xs text-status-wrong"
-            onClick={() => handleReset("wrong")}
-          >
-            <RefreshCw className="mr-1 h-3 w-3" />
-            Reset Wrong
-          </Button>
-        </div>
-      </div>
-      
-      <div className="mt-4 text-xs text-muted-foreground">
-        Total Questions: {counts.total}
+      {/* Stats */}
+      <div className="text-center text-sm">
+        <p className="text-muted-foreground">
+          {counts.total} total items
+        </p>
       </div>
     </div>
   );
