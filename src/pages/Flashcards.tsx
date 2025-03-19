@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import Filter from "@/components/Filter";
 import FlashcardItem from "@/components/FlashcardItem";
 import { useData } from "@/context/DataContext";
+import { Progress } from "@/components/ui/progress";
 
 const Flashcards = () => {
   const { flashcards: dataFlashcards, loading } = useData();
@@ -77,6 +78,25 @@ const Flashcards = () => {
     }
   };
 
+  // Reset status handlers
+  const resetCorrect = () => {
+    setFlashcards(prev => 
+      prev.map(card => card.status === "correct" ? { ...card, status: "unattempted" } : card)
+    );
+  };
+
+  const resetWrong = () => {
+    setFlashcards(prev => 
+      prev.map(card => card.status === "wrong" ? { ...card, status: "unattempted" } : card)
+    );
+  };
+
+  const resetAll = () => {
+    setFlashcards(prev => 
+      prev.map(card => ({ ...card, status: "unattempted" }))
+    );
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -96,6 +116,9 @@ const Flashcards = () => {
                 subjects={subjects}
                 topics={topics}
                 counts={counts}
+                resetCorrect={resetCorrect}
+                resetWrong={resetWrong}
+                resetAll={resetAll}
               />
             </div>
 
@@ -103,16 +126,7 @@ const Flashcards = () => {
             <div className="order-1 md:order-2">
               {filteredFlashcards.length > 0 ? (
                 <div className="space-y-8">
-                  <div className="progress-bar">
-                    <div
-                      className="progress-value"
-                      style={{
-                        width: `${
-                          ((currentIndex + 1) / filteredFlashcards.length) * 100
-                        }%`,
-                      }}
-                    />
-                  </div>
+                  <Progress value={((currentIndex + 1) / filteredFlashcards.length) * 100} className="h-2" />
 
                   <div className="text-center text-sm text-muted-foreground">
                     Card {currentIndex + 1} of {filteredFlashcards.length}
