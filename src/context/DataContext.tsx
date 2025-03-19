@@ -60,11 +60,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
         try {
           const data = e.target?.result;
           const workbook = XLSX.read(data, { type: "binary" });
-
+          console.log("Workbook sheets:", workbook.SheetNames);
+          
           // Process Flashcards sheet
           if (workbook.SheetNames.includes("Flashcards")) {
             const flashcardsSheet = workbook.Sheets["Flashcards"];
             const flashcardsData = XLSX.utils.sheet_to_json(flashcardsSheet);
+            console.log("Flashcards data:", flashcardsData);
             
             const processedFlashcards: Flashcard[] = flashcardsData.map((row: any, index) => ({
               id: index + 1,
@@ -86,49 +88,60 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
           if (workbook.SheetNames.includes("MCQs")) {
             const mcqsSheet = workbook.Sheets["MCQs"];
             const mcqsData = XLSX.utils.sheet_to_json(mcqsSheet);
+            console.log("MCQs data:", mcqsData);
             
-            const processedMCQs: MCQ[] = mcqsData.map((row: any) => ({
-              id: row["sl no"] || row.slno || row.id || Math.random().toString(36).substr(2, 9),
-              question: row.question || "",
-              optionA: row["option a"] || "",
-              optionB: row["option b"] || "",
-              optionC: row["option c"] || "",
-              optionD: row["option d"] || "",
-              key: row.key?.toLowerCase() || "a",
-              explanation: row.fullexplanation || row.fullexplanataion || "",
-              subject: row.subject || "",
-              topic: row.topic || "",
-              status: "unattempted"
-            }));
-            
-            setMcqs(processedMCQs);
+            if (mcqsData.length > 0) {
+              console.log("Sample MCQ row:", mcqsData[0]);
+              
+              const processedMCQs: MCQ[] = mcqsData.map((row: any, index) => ({
+                id: row["sl no"] || row.slno || row.id || index + 1,
+                question: row.question || "",
+                optionA: row["option a"] || "",
+                optionB: row["option b"] || "",
+                optionC: row["option c"] || "",
+                optionD: row["option d"] || "",
+                key: row.key?.toLowerCase() || "a",
+                explanation: row.fullexplanation || row.fullexplanataion || row.fullexplanataion || "",
+                subject: row.subject || "",
+                topic: row.topic || "",
+                status: "unattempted"
+              }));
+              
+              setMcqs(processedMCQs);
+            }
           }
 
           // Process Test App sheet
           if (workbook.SheetNames.includes("Test App")) {
             const testSheet = workbook.Sheets["Test App"];
             const testData = XLSX.utils.sheet_to_json(testSheet);
+            console.log("Test data:", testData);
             
-            const processedTests: TestQuestion[] = testData.map((row: any) => ({
-              id: row["sl no"] || row.slno || row.id || Math.random().toString(36).substr(2, 9),
-              question: row.question || "",
-              optionA: row["option a"] || "",
-              optionB: row["option b"] || "",
-              optionC: row["option c"] || "",
-              optionD: row["option d"] || "",
-              key: row.key?.toLowerCase() || "a",
-              explanation: row.fullexplanation || row.fullexplanataion || row["full explanation"] || "",
-              subject: row.subject || "",
-              topic: row.topic || "",
-              testNumber: row["test number"] || 1,
-              status: "unattempted"
-            }));
-            
-            setTestQuestions(processedTests);
+            if (testData.length > 0) {
+              console.log("Sample test row:", testData[0]);
+              
+              const processedTests: TestQuestion[] = testData.map((row: any, index) => ({
+                id: row["sl no"] || row.slno || row.id || index + 1,
+                question: row.question || "",
+                optionA: row["option a"] || row["opton a"] || "",
+                optionB: row["option b"] || row["opton b"] || "",
+                optionC: row["option c"] || row["opton c"] || "",
+                optionD: row["option d"] || row["opton d"] || "",
+                key: row.key?.toLowerCase() || row.Key?.toLowerCase() || "a",
+                explanation: row.fullexplanation || row.fullexplanataion || row["full explanation"] || "",
+                subject: row.subject || "",
+                topic: row.topic || "",
+                testNumber: row["test number"] || 1,
+                status: "unattempted"
+              }));
+              
+              setTestQuestions(processedTests);
+            }
           }
 
           resolve();
         } catch (error) {
+          console.error("Error processing Excel file:", error);
           reject(error);
         }
       };
