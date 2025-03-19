@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, RefreshCw, X } from "lucide-react";
+import { Check, RefreshCw } from "lucide-react";
 import { FilterState, QuestionStatus } from "@/utils/types";
 import StatusBadge from "./StatusBadge";
 
@@ -18,6 +18,9 @@ interface FilterProps {
     unattempted: number;
     total: number;
   };
+  resetCorrect: () => void;
+  resetWrong: () => void;
+  resetAll: () => void;
 }
 
 const Filter: React.FC<FilterProps> = ({
@@ -27,31 +30,17 @@ const Filter: React.FC<FilterProps> = ({
   topics,
   testNumbers,
   counts,
+  resetCorrect,
+  resetWrong,
+  resetAll,
 }) => {
-  // Reset filter handlers
-  const resetCorrect = () => {
-    // This would reset all items with "correct" status to "unattempted"
-    // In a real app, this would call an API to update the data
-    console.log("Reset correct");
-  };
-
-  const resetWrong = () => {
-    // This would reset all items with "wrong" status to "unattempted"
-    console.log("Reset wrong");
-  };
-
-  const resetAll = () => {
-    // This would reset all statuses to "unattempted"
-    console.log("Reset all");
-  };
-
   return (
     <div className="space-y-6">
       <div className="p-4 border rounded-lg shadow-sm">
         <h3 className="font-medium mb-4">Filters</h3>
 
         {/* Test Numbers Filter (only for Test App) */}
-        {testNumbers && (
+        {testNumbers && testNumbers.length > 0 && (
           <div className="mb-4">
             <h4 className="text-sm font-medium mb-2">Test Number</h4>
             <div className="flex flex-wrap gap-2">
@@ -84,33 +73,35 @@ const Filter: React.FC<FilterProps> = ({
         )}
 
         {/* Subject Filter */}
-        <div className="mb-4">
-          <h4 className="text-sm font-medium mb-2">Subject</h4>
-          <div className="flex flex-wrap gap-2">
-            {subjects.map((subject) => (
-              <Badge
-                key={subject}
-                variant={
-                  filterState.subject === subject ? "default" : "outline"
-                }
-                className="cursor-pointer"
-                onClick={() =>
-                  setFilterState((prev) => ({
-                    ...prev,
-                    subject: prev.subject === subject ? null : subject,
-                    // Reset topic when subject changes
-                    topic: prev.subject === subject ? prev.topic : null,
-                  }))
-                }
-              >
-                {filterState.subject === subject && (
-                  <Check className="mr-1 h-3 w-3" />
-                )}
-                {subject}
-              </Badge>
-            ))}
+        {subjects.length > 0 && (
+          <div className="mb-4">
+            <h4 className="text-sm font-medium mb-2">Subject</h4>
+            <div className="flex flex-wrap gap-2">
+              {subjects.map((subject) => (
+                <Badge
+                  key={subject}
+                  variant={
+                    filterState.subject === subject ? "default" : "outline"
+                  }
+                  className="cursor-pointer"
+                  onClick={() =>
+                    setFilterState((prev) => ({
+                      ...prev,
+                      subject: prev.subject === subject ? null : subject,
+                      // Reset topic when subject changes
+                      topic: prev.subject === subject ? prev.topic : null,
+                    }))
+                  }
+                >
+                  {filterState.subject === subject && (
+                    <Check className="mr-1 h-3 w-3" />
+                  )}
+                  {subject}
+                </Badge>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Topic Filter */}
         {filterState.subject && topics.length > 0 && (

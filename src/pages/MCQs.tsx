@@ -8,10 +8,11 @@ import Header from "@/components/Header";
 import Filter from "@/components/Filter";
 import MCQItem from "@/components/MCQItem";
 import { useData } from "@/context/DataContext";
+import { Progress } from "@/components/ui/progress";
 
 const MCQs = () => {
   const { mcqs: dataMCQs, loading } = useData();
-  const [mcqs, setMCQs] = useState<MCQ[]>(dataMCQs);
+  const [mcqs, setMCQs] = useState<MCQ[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [filterState, setFilterState] = useState<FilterState>({
     subject: null,
@@ -21,7 +22,10 @@ const MCQs = () => {
 
   // Update local state when data changes
   useEffect(() => {
-    setMCQs(dataMCQs);
+    console.log("MCQs data from context:", dataMCQs);
+    if (dataMCQs.length > 0) {
+      setMCQs(dataMCQs);
+    }
   }, [dataMCQs]);
 
   // Get filtered MCQs
@@ -77,6 +81,25 @@ const MCQs = () => {
     }
   };
 
+  // Reset status handlers
+  const resetCorrect = () => {
+    setMCQs(prev => 
+      prev.map(mcq => mcq.status === "correct" ? { ...mcq, status: "unattempted" } : mcq)
+    );
+  };
+
+  const resetWrong = () => {
+    setMCQs(prev => 
+      prev.map(mcq => mcq.status === "wrong" ? { ...mcq, status: "unattempted" } : mcq)
+    );
+  };
+
+  const resetAll = () => {
+    setMCQs(prev => 
+      prev.map(mcq => ({ ...mcq, status: "unattempted" }))
+    );
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -96,6 +119,9 @@ const MCQs = () => {
                 subjects={subjects}
                 topics={topics}
                 counts={counts}
+                resetCorrect={resetCorrect}
+                resetWrong={resetWrong}
+                resetAll={resetAll}
               />
             </div>
 
@@ -103,16 +129,7 @@ const MCQs = () => {
             <div className="order-1 md:order-2">
               {filteredMCQs.length > 0 ? (
                 <div className="space-y-8">
-                  <div className="progress-bar">
-                    <div
-                      className="progress-value"
-                      style={{
-                        width: `${
-                          ((currentIndex + 1) / filteredMCQs.length) * 100
-                        }%`,
-                      }}
-                    />
-                  </div>
+                  <Progress value={((currentIndex + 1) / filteredMCQs.length) * 100} className="h-2" />
 
                   <div className="text-center text-sm text-muted-foreground">
                     Question {currentIndex + 1} of {filteredMCQs.length}

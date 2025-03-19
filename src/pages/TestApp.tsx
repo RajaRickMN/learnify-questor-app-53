@@ -8,10 +8,11 @@ import Header from "@/components/Header";
 import Filter from "@/components/Filter";
 import TestItem from "@/components/TestItem";
 import { useData } from "@/context/DataContext";
+import { Progress } from "@/components/ui/progress";
 
 const TestApp = () => {
   const { testQuestions: dataTestQuestions, loading } = useData();
-  const [testQuestions, setTestQuestions] = useState<TestQuestion[]>(dataTestQuestions);
+  const [testQuestions, setTestQuestions] = useState<TestQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [filterState, setFilterState] = useState<FilterState>({
     subject: null,
@@ -22,7 +23,10 @@ const TestApp = () => {
 
   // Update local state when data changes
   useEffect(() => {
-    setTestQuestions(dataTestQuestions);
+    console.log("Test questions data from context:", dataTestQuestions);
+    if (dataTestQuestions.length > 0) {
+      setTestQuestions(dataTestQuestions);
+    }
   }, [dataTestQuestions]);
 
   // Get filtered test questions
@@ -84,6 +88,25 @@ const TestApp = () => {
       setCurrentIndex(currentIndex + 1);
     }
   };
+  
+  // Reset status handlers
+  const resetCorrect = () => {
+    setTestQuestions(prev => 
+      prev.map(question => question.status === "correct" ? { ...question, status: "unattempted" } : question)
+    );
+  };
+
+  const resetWrong = () => {
+    setTestQuestions(prev => 
+      prev.map(question => question.status === "wrong" ? { ...question, status: "unattempted" } : question)
+    );
+  };
+
+  const resetAll = () => {
+    setTestQuestions(prev => 
+      prev.map(question => ({ ...question, status: "unattempted" }))
+    );
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -105,6 +128,9 @@ const TestApp = () => {
                 topics={topics}
                 testNumbers={testNumbers}
                 counts={counts}
+                resetCorrect={resetCorrect}
+                resetWrong={resetWrong}
+                resetAll={resetAll}
               />
             </div>
 
@@ -112,16 +138,7 @@ const TestApp = () => {
             <div className="order-1 md:order-2">
               {filteredQuestions.length > 0 ? (
                 <div className="space-y-8">
-                  <div className="progress-bar">
-                    <div
-                      className="progress-value"
-                      style={{
-                        width: `${
-                          ((currentIndex + 1) / filteredQuestions.length) * 100
-                        }%`,
-                      }}
-                    />
-                  </div>
+                  <Progress value={((currentIndex + 1) / filteredQuestions.length) * 100} className="h-2" />
 
                   <div className="text-center text-sm text-muted-foreground">
                     Question {currentIndex + 1} of {filteredQuestions.length}
