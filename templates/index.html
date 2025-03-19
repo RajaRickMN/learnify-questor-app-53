@@ -1,0 +1,61 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <h2 class="text-3xl font-bold mb-8 text-center">Welcome to Learning App</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <a href="/flashcards" class="block p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex flex-col items-center text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 text-blue-500">
+                    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                    <path d="M12 8v8"></path>
+                    <path d="m9 12 3-3 3 3"></path>
+                </svg>
+                <h3 class="text-xl font-medium mb-2">Flashcards</h3>
+                <p class="text-gray-600 dark:text-gray-400">Review key concepts with interactive flashcards</p>
+            </div>
+        </a>
+        
+        <a href="/mcqs" class="block p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex flex-col items-center text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 text-green-500">
+                    <path d="M8 2v4"></path>
+                    <path d="M16 2v4"></path>
+                    <rect x="2" y="6" width="20" height="16" rx="2"></rect>
+                    <path d="M9 14h.01"></path>
+                    <path d="M15 14h.01"></path>
+                    <path d="M9 18h6"></path>
+                </svg>
+                <h3 class="text-xl font-medium mb-2">Multiple Choice</h3>
+                <p class="text-gray-600 dark:text-gray-400">Test your knowledge with multiple choice questions</p>
+            </div>
+        </a>
+        
+        <a href="/tests" class="block p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div class="flex flex-col items-center text-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mb-4 text-purple-500">
+                    <path d="M12 22a2 2 0 0 0-2-2H5a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2h-5a2 2 0 0 0-2 2Z"></path>
+                    <path d="M9 17h6"></path>
+                    <path d="M9 12h6"></path>
+                    <path d="M9 7h6"></path>
+                </svg>
+                <h3 class="text-xl font-medium mb-2">Test App</h3>
+                <p class="text-gray-600 dark:text-gray-400">Take full tests with a variety of questions</p>
+            </div>
+        </a>
+    </div>
+    
+    <div class="mt-12 p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm">
+        <h3 class="text-xl font-medium mb-4">Getting Started</h3>
+        <p class="mb-4">Upload an Excel file with your study materials to begin. The file should contain the following worksheets:</p>
+        <ul class="list-disc list-inside space-y-2 mb-4">
+            <li><strong>Flashcards</strong> - For review with front/back cards</li>
+            <li><strong>MCQs</strong> - For multiple choice practice questions</li>
+            <li><strong>Test App</strong> - For creating full tests with questions</li>
+        </ul>
+        <p>Click the "Upload Excel" button in the header to import your data.</p>
+    </div>
+</div>
+{% endblock %}

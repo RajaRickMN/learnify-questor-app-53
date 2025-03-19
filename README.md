@@ -1,69 +1,93 @@
-# Welcome to your Lovable project
+
+# Learning App
+
+A Python web application for flashcards, multiple choice questions, and test preparation.
 
 ## Project info
 
-**URL**: https://lovable.dev/projects/ec0acc60-efcf-41c1-ad84-e79767b71abe
+This is a Flask-based web application that allows users to upload Excel files containing study materials and practice with flashcards, multiple choice questions, and tests.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- Upload Excel files with study materials
+- Practice with flashcards
+- Answer multiple choice questions
+- Take full tests
+- Track your progress
+- Dark/light mode
 
-**Use Lovable**
+## How to run locally
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/ec0acc60-efcf-41c1-ad84-e79767b71abe) and start prompting.
+### Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+Make sure you have Python 3.7+ installed on your system.
 
-**Use your preferred IDE**
+### Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
+1. Clone this repository:
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
 ```
 
-**Edit a file directly in GitHub**
+2. Create a virtual environment (recommended):
+```sh
+python -m venv venv
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+# On Windows
+venv\Scripts\activate
 
-**Use GitHub Codespaces**
+# On macOS/Linux
+source venv/bin/activate
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+3. Install dependencies:
+```sh
+pip install -r requirements.txt
+```
 
-## What technologies are used for this project?
+4. Run the application:
+```sh
+python app.py
+```
 
-This project is built with .
+5. Open your browser and navigate to:
+```
+http://localhost:8080
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Using the application
 
-## How can I deploy this project?
+1. Upload an Excel file using the "Upload Excel" button in the header.
+2. The Excel file should contain the following worksheets:
+   - `Flashcards` - For review with front/back cards
+   - `MCQs` - For multiple choice practice questions
+   - `Test App` - For creating full tests with questions
+3. Navigate to the different sections using the links on the homepage.
+4. Start studying and tracking your progress!
 
-Simply open [Lovable](https://lovable.dev/projects/ec0acc60-efcf-41c1-ad84-e79767b71abe) and click on Share -> Publish.
+## Excel file format
 
-## I want to use a custom domain - is that possible?
+### Flashcards worksheet
+Should contain columns:
+- `question` - The front of the flashcard
+- `answer` - The back of the flashcard
+- `subject` - The subject category
+- `topic` - The specific topic
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+### MCQs worksheet
+Should contain columns:
+- `question` - The question text
+- `option a`, `option b`, `option c`, `option d` - Multiple choice options
+- `key` - The correct answer (a, b, c, or d)
+- `explanation` - Explanation of the answer
+- `subject` - The subject category
+- `topic` - The specific topic
+
+### Test App worksheet
+Should contain the same columns as MCQs, plus:
+- `test number` - To group questions into specific tests
+
+## License
+
+This project is open source and available under the MIT License.

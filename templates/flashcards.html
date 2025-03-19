@@ -1,0 +1,494 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6">
+    <!-- Sidebar filter -->
+    <div class="order-2 md:order-1">
+        <div id="filter-container" class="space-y-6">
+            <div class="p-4 border rounded-lg shadow-sm">
+                <h3 class="font-medium mb-4">Filters</h3>
+                
+                <!-- Subject Filter -->
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium mb-2">Subject</h4>
+                    <div class="flex flex-wrap gap-2" id="subject-filters"></div>
+                </div>
+                
+                <!-- Topic Filter -->
+                <div class="mb-4">
+                    <h4 class="text-sm font-medium mb-2">Topic</h4>
+                    <div class="flex flex-wrap gap-2" id="topic-filters"></div>
+                </div>
+                
+                <!-- Status Filter -->
+                <div>
+                    <h4 class="text-sm font-medium mb-2">Status</h4>
+                    <div class="flex flex-wrap gap-2" id="status-filters"></div>
+                </div>
+            </div>
+            
+            <!-- Reset Actions -->
+            <div class="p-4 border rounded-lg space-y-3">
+                <h3 class="font-medium mb-2">Actions</h3>
+                <button id="reset-correct" class="w-full flex items-center justify-start px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-green-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <path d="M2 12a10 10 0 0 1 18-5.3m2 .3a10 10 0 0 1-18 5.3m18-5.3L16 6"></path>
+                    </svg>
+                    Reset Correct
+                </button>
+                <button id="reset-wrong" class="w-full flex items-center justify-start px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 text-red-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <path d="M2 12a10 10 0 0 1 18-5.3m2 .3a10 10 0 0 1-18 5.3m18-5.3L16 6"></path>
+                    </svg>
+                    Reset Wrong
+                </button>
+                <button id="reset-all" class="w-full flex items-center justify-start px-3 py-2 text-sm rounded-md border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
+                        <path d="M2 12a10 10 0 0 1 18-5.3m2 .3a10 10 0 0 1-18 5.3m18-5.3L16 6"></path>
+                    </svg>
+                    Reset All
+                </button>
+            </div>
+            
+            <!-- Stats -->
+            <div class="text-center text-sm">
+                <p class="text-gray-500" id="stats-total">0 total items</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main content -->
+    <div class="order-1 md:order-2">
+        <div id="loading" class="flex items-center justify-center h-96">
+            <div class="text-xl">Loading data...</div>
+        </div>
+        
+        <div id="flashcard-container" class="hidden space-y-8">
+            <div class="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                <div id="progress-bar" class="bg-blue-500 h-full" style="width: 0%"></div>
+            </div>
+            
+            <div id="card-counter" class="text-center text-sm text-gray-500">
+                Card 0 of 0
+            </div>
+            
+            <div id="flashcard" class="h-96 relative">
+                <div class="flashcard-front absolute inset-0 border rounded-lg shadow p-8 flex flex-col bg-white dark:bg-gray-800">
+                    <div class="flex justify-between items-start">
+                        <div id="front-meta" class="text-sm text-gray-500"></div>
+                        <div id="front-status" class="px-2 py-1 text-xs rounded-full"></div>
+                    </div>
+                    
+                    <div class="flex-1 flex items-center justify-center">
+                        <h2 id="question" class="text-2xl font-medium text-center"></h2>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-center">
+                        <button id="flip-button" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18.4 10c-.8-4.8-4.9-8.5-9.9-8.5h-.5"></path>
+                                <path d="M5.5 2.5 2 10h8"></path>
+                                <path d="M5.6 14c.8 4.8 4.9 8.5 9.9 8.5h.5"></path>
+                                <path d="M18.5 21.5 22 14h-8"></path>
+                            </svg>
+                            Show Answer
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flashcard-back absolute inset-0 border rounded-lg shadow p-8 flex flex-col bg-white dark:bg-gray-800 hidden">
+                    <div class="flex justify-between items-start">
+                        <div id="back-meta" class="text-sm text-gray-500"></div>
+                        <div id="back-status" class="px-2 py-1 text-xs rounded-full"></div>
+                    </div>
+                    
+                    <div class="flex-1 flex items-center justify-center">
+                        <p id="answer" class="text-xl text-center"></p>
+                    </div>
+                    
+                    <div class="mt-6 space-y-2">
+                        <div class="flex items-center justify-center gap-2">
+                            <button id="correct-button" class="px-4 py-2 border border-green-300 text-green-600 rounded-md hover:bg-green-50 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="m9 12 2 2 4-4"></path>
+                                </svg>
+                                I Got It Right
+                            </button>
+                            
+                            <button id="wrong-button" class="px-4 py-2 border border-red-300 text-red-600 rounded-md hover:bg-red-50 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="m15 9-6 6"></path>
+                                    <path d="m9 9 6 6"></path>
+                                </svg>
+                                I Got It Wrong
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-center">
+                            <button id="back-to-question" class="w-full px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 flex items-center justify-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18.4 10c-.8-4.8-4.9-8.5-9.9-8.5h-.5"></path>
+                                    <path d="M5.5 2.5 2 10h8"></path>
+                                    <path d="M5.6 14c.8 4.8 4.9 8.5 9.9 8.5h.5"></path>
+                                    <path d="M18.5 21.5 22 14h-8"></path>
+                                </svg>
+                                Back to Question
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <button id="prev-button" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 19-7-7 7-7"></path>
+                        <path d="M19 12H5"></path>
+                    </svg>
+                    Previous
+                </button>
+                
+                <button id="next-button" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2" disabled>
+                    Next
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m12 5 7 7-7 7"></path>
+                        <path d="M5 12h14"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div id="no-data" class="hidden flex flex-col items-center justify-center h-96 text-center">
+            <div class="text-xl font-medium">No flashcards found</div>
+            <p class="text-gray-500 mt-2">
+                Try changing your filter criteria or upload an Excel file
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Flashcards specific JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // State
+        let flashcards = [];
+        let filteredFlashcards = [];
+        let currentIndex = 0;
+        let filterState = {
+            subject: null,
+            topic: null,
+            status: null
+        };
+        
+        // Elements
+        const loadingEl = document.getElementById('loading');
+        const noDataEl = document.getElementById('no-data');
+        const flashcardContainerEl = document.getElementById('flashcard-container');
+        const progressBarEl = document.getElementById('progress-bar');
+        const cardCounterEl = document.getElementById('card-counter');
+        const questionEl = document.getElementById('question');
+        const answerEl = document.getElementById('answer');
+        const frontMetaEl = document.getElementById('front-meta');
+        const backMetaEl = document.getElementById('back-meta');
+        const frontStatusEl = document.getElementById('front-status');
+        const backStatusEl = document.getElementById('back-status');
+        const flipButtonEl = document.getElementById('flip-button');
+        const backToQuestionEl = document.getElementById('back-to-question');
+        const correctButtonEl = document.getElementById('correct-button');
+        const wrongButtonEl = document.getElementById('wrong-button');
+        const prevButtonEl = document.getElementById('prev-button');
+        const nextButtonEl = document.getElementById('next-button');
+        const frontCardEl = document.querySelector('.flashcard-front');
+        const backCardEl = document.querySelector('.flashcard-back');
+        const subjectFiltersEl = document.getElementById('subject-filters');
+        const topicFiltersEl = document.getElementById('topic-filters');
+        const statusFiltersEl = document.getElementById('status-filters');
+        const statsTotalEl = document.getElementById('stats-total');
+        const resetCorrectEl = document.getElementById('reset-correct');
+        const resetWrongEl = document.getElementById('reset-wrong');
+        const resetAllEl = document.getElementById('reset-all');
+        
+        // Functions
+        function fetchData() {
+            loadingEl.classList.remove('hidden');
+            noDataEl.classList.add('hidden');
+            flashcardContainerEl.classList.add('hidden');
+            
+            fetch('/api/data')
+                .then(response => response.json())
+                .then(data => {
+                    flashcards = data.flashcards || [];
+                    updateFilters();
+                    applyFilters();
+                    loadingEl.classList.add('hidden');
+                    
+                    if (filteredFlashcards.length === 0) {
+                        noDataEl.classList.remove('hidden');
+                    } else {
+                        flashcardContainerEl.classList.remove('hidden');
+                        displayCurrentCard();
+                    }
+                    
+                    updateStats();
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    loadingEl.classList.add('hidden');
+                    noDataEl.classList.remove('hidden');
+                });
+        }
+        
+        function getUniqueSubjects() {
+            return [...new Set(flashcards.map(card => card.subject))].filter(Boolean);
+        }
+        
+        function getUniqueTopics() {
+            if (!filterState.subject) return [];
+            return [...new Set(flashcards
+                .filter(card => card.subject === filterState.subject)
+                .map(card => card.topic))]
+                .filter(Boolean);
+        }
+        
+        function updateFilters() {
+            // Subjects
+            const subjects = getUniqueSubjects();
+            subjectFiltersEl.innerHTML = '';
+            
+            subjects.forEach(subject => {
+                const badge = document.createElement('span');
+                badge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${
+                    filterState.subject === subject 
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' 
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
+                }`;
+                badge.textContent = subject;
+                badge.addEventListener('click', () => {
+                    if (filterState.subject === subject) {
+                        filterState.subject = null;
+                        filterState.topic = null;
+                    } else {
+                        filterState.subject = subject;
+                        filterState.topic = null;
+                    }
+                    updateFilters();
+                    applyFilters();
+                });
+                subjectFiltersEl.appendChild(badge);
+            });
+            
+            // Topics
+            const topics = getUniqueTopics();
+            topicFiltersEl.innerHTML = '';
+            
+            if (filterState.subject) {
+                topics.forEach(topic => {
+                    const badge = document.createElement('span');
+                    badge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${
+                        filterState.topic === topic 
+                            ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' 
+                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
+                    }`;
+                    badge.textContent = topic;
+                    badge.addEventListener('click', () => {
+                        filterState.topic = filterState.topic === topic ? null : topic;
+                        updateFilters();
+                        applyFilters();
+                    });
+                    topicFiltersEl.appendChild(badge);
+                });
+            }
+            
+            // Status
+            statusFiltersEl.innerHTML = '';
+            const statuses = [
+                { key: 'correct', label: 'Correct', count: flashcards.filter(f => f.status === 'correct').length },
+                { key: 'wrong', label: 'Wrong', count: flashcards.filter(f => f.status === 'wrong').length },
+                { key: 'unattempted', label: 'Unattempted', count: flashcards.filter(f => f.status === 'unattempted').length }
+            ];
+            
+            statuses.forEach(status => {
+                const badge = document.createElement('span');
+                badge.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium cursor-pointer ${
+                    filterState.status === status.key 
+                        ? 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100' 
+                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100'
+                }`;
+                
+                // Status icon
+                const icon = document.createElement('span');
+                icon.className = 'mr-1 w-2 h-2 rounded-full';
+                
+                if (status.key === 'correct') {
+                    icon.className += ' bg-green-500';
+                } else if (status.key === 'wrong') {
+                    icon.className += ' bg-red-500';
+                } else {
+                    icon.className += ' bg-gray-500';
+                }
+                
+                badge.appendChild(icon);
+                badge.appendChild(document.createTextNode(`${status.label} ${status.count}`));
+                
+                badge.addEventListener('click', () => {
+                    filterState.status = filterState.status === status.key ? null : status.key;
+                    updateFilters();
+                    applyFilters();
+                });
+                statusFiltersEl.appendChild(badge);
+            });
+        }
+        
+        function applyFilters() {
+            filteredFlashcards = flashcards.filter(card => {
+                const subjectMatch = !filterState.subject || card.subject === filterState.subject;
+                const topicMatch = !filterState.topic || card.topic === filterState.topic;
+                const statusMatch = !filterState.status || card.status === filterState.status;
+                
+                return subjectMatch && topicMatch && statusMatch;
+            });
+            
+            currentIndex = 0;
+            
+            if (filteredFlashcards.length === 0) {
+                flashcardContainerEl.classList.add('hidden');
+                noDataEl.classList.remove('hidden');
+            } else {
+                flashcardContainerEl.classList.remove('hidden');
+                noDataEl.classList.add('hidden');
+                displayCurrentCard();
+            }
+        }
+        
+        function displayCurrentCard() {
+            if (filteredFlashcards.length === 0) return;
+            
+            const card = filteredFlashcards[currentIndex];
+            
+            // Update question and answer
+            questionEl.textContent = card.question;
+            answerEl.textContent = card.answer;
+            
+            // Update meta info
+            const metaText = `${card.subject} • ${card.topic}`;
+            frontMetaEl.textContent = metaText;
+            backMetaEl.textContent = metaText;
+            
+            // Update status badges
+            updateStatusBadge(frontStatusEl, card.status);
+            updateStatusBadge(backStatusEl, card.status);
+            
+            // Update navigation buttons
+            prevButtonEl.disabled = currentIndex === 0;
+            nextButtonEl.disabled = currentIndex === filteredFlashcards.length - 1;
+            
+            // Update progress
+            updateProgress();
+            
+            // Reset to front of card
+            flipToFront();
+        }
+        
+        function updateStatusBadge(element, status) {
+            element.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+            
+            if (status === 'correct') {
+                element.className = 'px-2 py-0.5 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100';
+            } else if (status === 'wrong') {
+                element.className = 'px-2 py-0.5 text-xs rounded-full bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100';
+            } else {
+                element.className = 'px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100';
+            }
+        }
+        
+        function updateProgress() {
+            const progress = ((currentIndex + 1) / filteredFlashcards.length) * 100;
+            progressBarEl.style.width = `${progress}%`;
+            cardCounterEl.textContent = `Card ${currentIndex + 1} of ${filteredFlashcards.length}`;
+        }
+        
+        function flipToFront() {
+            frontCardEl.classList.remove('hidden');
+            backCardEl.classList.add('hidden');
+        }
+        
+        function flipToBack() {
+            frontCardEl.classList.add('hidden');
+            backCardEl.classList.remove('hidden');
+        }
+        
+        function updateStats() {
+            statsTotalEl.textContent = `${flashcards.length} total items`;
+        }
+        
+        function updateCardStatus(status) {
+            if (filteredFlashcards.length === 0) return;
+            
+            const cardId = filteredFlashcards[currentIndex].id;
+            
+            // Update locally
+            flashcards = flashcards.map(card => 
+                card.id === cardId ? { ...card, status } : card
+            );
+            
+            // Update filter counts
+            updateFilters();
+            
+            // Refresh current card display
+            filteredFlashcards = filteredFlashcards.map(card => 
+                card.id === cardId ? { ...card, status } : card
+            );
+            
+            displayCurrentCard();
+            updateStats();
+        }
+        
+        function resetCards(statusToReset) {
+            if (statusToReset === 'all') {
+                flashcards = flashcards.map(card => ({ ...card, status: 'unattempted' }));
+            } else {
+                flashcards = flashcards.map(card => 
+                    card.status === statusToReset ? { ...card, status: 'unattempted' } : card
+                );
+            }
+            
+            updateFilters();
+            applyFilters();
+            updateStats();
+        }
+        
+        // Event Listeners
+        flipButtonEl.addEventListener('click', flipToBack);
+        backToQuestionEl.addEventListener('click', flipToFront);
+        
+        correctButtonEl.addEventListener('click', () => updateCardStatus('correct'));
+        wrongButtonEl.addEventListener('click', () => updateCardStatus('wrong'));
+        
+        prevButtonEl.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                displayCurrentCard();
+            }
+        });
+        
+        nextButtonEl.addEventListener('click', () => {
+            if (currentIndex < filteredFlashcards.length - 1) {
+                currentIndex++;
+                displayCurrentCard();
+            }
+        });
+        
+        resetCorrectEl.addEventListener('click', () => resetCards('correct'));
+        resetWrongEl.addEventListener('click', () => resetCards('wrong'));
+        resetAllEl.addEventListener('click', () => resetCards('all'));
+        
+        // Initialize
+        fetchData();
+    });
+</script>
+{% endblock %}
