@@ -33,10 +33,13 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
         setFlashcards(data.flashcards);
         setMCQs(data.mcqs);
         setTestQuestions(data.testQuestions);
-        toast.success("Excel data loaded successfully from GitHub");
+        toast.success("Excel data loaded successfully");
       } catch (error) {
         console.error("Error loading Excel file from GitHub:", error);
-        toast.error("Error loading Excel file from GitHub. Please try uploading manually.");
+        // Show a more user-friendly message
+        toast.error("Please upload your Excel file using the upload button");
+        // We don't set error state here because we want the app to be usable
+        // without requiring a GitHub file
       } finally {
         setLoading(false);
       }

@@ -1,4 +1,3 @@
-
 import * as XLSX from "xlsx";
 import { MCQ, Flashcard, TestQuestion } from "@/utils/types";
 
@@ -10,62 +9,66 @@ export const fetchAndProcessGithubExcel = async (): Promise<{
   mcqs: MCQ[];
   testQuestions: TestQuestion[];
 }> => {
-  // Updated to the correct raw GitHub URL
-  const GITHUB_RAW_URL = "https://raw.githubusercontent.com/RajaRickMN/learnify-questor-app-53/main/app.xlsx";
+  const GITHUB_URLS = [
+    "https://raw.githubusercontent.com/RajaRickMN/learnify-questor-app-53/main/app.xlsx",
+    "https://github.com/RajaRickMN/learnify-questor-app-53/raw/main/app.xlsx",
+    "https://github.com/RajaRickMN/learnify-questor-app-53/blob/main/app.xlsx?raw=true"
+  ];
   
-  try {
-    // First try the updated URL
-    let response = await fetch(GITHUB_RAW_URL);
-    
-    // If that fails, try an alternative URL format (blob instead of raw)
-    if (!response.ok) {
-      console.log("First URL attempt failed, trying alternate URL");
-      const ALT_GITHUB_URL = "https://github.com/RajaRickMN/learnify-questor-app-53/blob/main/app.xlsx?raw=true";
-      response = await fetch(ALT_GITHUB_URL);
+  let lastError: Error | null = null;
+  
+  for (const url of GITHUB_URLS) {
+    try {
+      console.log(`Attempting to fetch from: ${url}`);
+      const response = await fetch(url, { 
+        cache: 'no-store',
+        headers: {
+          'Pragma': 'no-cache'
+        }
+      });
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch Excel file: ${response.status}`);
+        console.log(`URL ${url} failed with status: ${response.status}`);
+        continue;
       }
-    }
-    
-    const arrayBuffer = await response.arrayBuffer();
-    const data = new Uint8Array(arrayBuffer);
-    const workbook = XLSX.read(data, { type: "array" });
-    
-    console.log("Workbook sheets:", workbook.SheetNames);
-    
-    // Initialize empty arrays for our data
-    let flashcards: Flashcard[] = [];
-    let mcqs: MCQ[] = [];
-    let testQuestions: TestQuestion[] = [];
-    
-    // Process Flashcards sheet
-    if (workbook.SheetNames.includes("Flashcards")) {
-      flashcards = processFlashcardsSheet(workbook.Sheets["Flashcards"]);
-    }
+      
+      const arrayBuffer = await response.arrayBuffer();
+      const data = new Uint8Array(arrayBuffer);
+      const workbook = XLSX.read(data, { type: "array" });
+      
+      console.log("Workbook sheets:", workbook.SheetNames);
+      
+      let flashcards: Flashcard[] = [];
+      let mcqs: MCQ[] = [];
+      let testQuestions: TestQuestion[] = [];
+      
+      if (workbook.SheetNames.includes("Flashcards")) {
+        flashcards = processFlashcardsSheet(workbook.Sheets["Flashcards"]);
+      }
 
-    // Process MCQs sheet
-    if (workbook.SheetNames.includes("MCQs")) {
-      mcqs = processMCQsSheet(workbook.Sheets["MCQs"]);
-    }
+      if (workbook.SheetNames.includes("MCQs")) {
+        mcqs = processMCQsSheet(workbook.Sheets["MCQs"]);
+      }
 
-    // Process Test App sheet
-    const testSheetNames = ["Test App", "Test", "TestApp"];
-    const testSheetName = testSheetNames.find(name => workbook.SheetNames.includes(name));
-    
-    if (testSheetName) {
-      testQuestions = processTestSheet(workbook.Sheets[testSheetName]);
-    }
+      const testSheetNames = ["Test App", "Test", "TestApp"];
+      const testSheetName = testSheetNames.find(name => workbook.SheetNames.includes(name));
+      
+      if (testSheetName) {
+        testQuestions = processTestSheet(workbook.Sheets[testSheetName]);
+      }
 
-    return {
-      flashcards,
-      mcqs,
-      testQuestions
-    };
-  } catch (error) {
-    console.error("Error fetching or processing Excel file:", error);
-    throw error;
+      return {
+        flashcards,
+        mcqs,
+        testQuestions
+      };
+    } catch (error) {
+      console.error(`Error with URL ${GITHUB_URLS[0]}:`, error);
+      lastError = error as Error;
+    }
   }
+  
+  throw lastError || new Error("Failed to fetch Excel file from all GitHub URLs");
 };
 
 /**
@@ -89,22 +92,18 @@ export const processExcelFile = async (file: File): Promise<{
         const workbook = XLSX.read(data, { type: "binary" });
         console.log("Workbook sheets:", workbook.SheetNames);
         
-        // Initialize empty arrays for our data
         let flashcards: Flashcard[] = [];
         let mcqs: MCQ[] = [];
         let testQuestions: TestQuestion[] = [];
         
-        // Process Flashcards sheet
         if (workbook.SheetNames.includes("Flashcards")) {
           flashcards = processFlashcardsSheet(workbook.Sheets["Flashcards"]);
         }
 
-        // Process MCQs sheet
         if (workbook.SheetNames.includes("MCQs")) {
           mcqs = processMCQsSheet(workbook.Sheets["MCQs"]);
         }
 
-        // Process Test App sheet
         const testSheetNames = ["Test App", "Test", "TestApp"];
         const testSheetName = testSheetNames.find(name => workbook.SheetNames.includes(name));
         
@@ -160,16 +159,12 @@ const processMCQsSheet = (sheet: XLSX.WorkSheet): MCQ[] => {
     return [];
   }
   
-  // Log the first row to see the field names
   console.log("Sample MCQ row:", mcqsData[0]);
   
   return mcqsData.map((row: any, index) => {
-    // Create a normalized version of keys to handle different formats
     const normalizedRow = Object.keys(row).reduce((acc: any, key: string) => {
-      // Convert the key to lowercase for normalization
       const lcKey = key.toLowerCase();
       
-      // Map the key to a standard format
       if (lcKey.includes("sl no") || lcKey.includes("slno") || lcKey.includes("id")) {
         acc.id = row[key];
       } else if (lcKey === "question") {
@@ -222,16 +217,12 @@ const processTestSheet = (sheet: XLSX.WorkSheet): TestQuestion[] => {
     return [];
   }
   
-  // Log the first row to see the field names
   console.log("Sample test row:", testData[0]);
   
   return testData.map((row: any, index) => {
-    // Create a normalized version of keys to handle different formats
     const normalizedRow = Object.keys(row).reduce((acc: any, key: string) => {
-      // Convert the key to lowercase for normalization
       const lcKey = key.toLowerCase();
       
-      // Map the key to a standard format
       if (lcKey.includes("sl no") || lcKey.includes("slno") || lcKey.includes("id")) {
         acc.id = row[key];
       } else if (lcKey === "question") {
