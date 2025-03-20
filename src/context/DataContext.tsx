@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { MCQ, Flashcard, TestQuestion } from "@/utils/types";
 import { toast } from "sonner";
-import { processExcelFile } from "@/utils/excelProcessor";
+import { processExcelFile, fetchAndProcessGithubExcel } from "@/utils/excelProcessor";
 
 interface DataContextType {
   flashcards: Flashcard[];
@@ -21,6 +21,27 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
   const [mcqs, setMCQs] = useState<MCQ[]>([]);
   const [testQuestions, setTestQuestions] = useState<TestQuestion[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+
+  // Load GitHub Excel file on component mount
+  useEffect(() => {
+    const loadGithubExcel = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchAndProcessGithubExcel();
+        setFlashcards(data.flashcards);
+        setMCQs(data.mcqs);
+        setTestQuestions(data.testQuestions);
+        toast.success("Excel data loaded successfully from GitHub");
+      } catch (error) {
+        console.error("Error loading Excel file from GitHub:", error);
+        toast.error("Error loading Excel file from GitHub");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadGithubExcel();
+  }, []);
 
   useEffect(() => {
     // Listen for the excel-upload event
