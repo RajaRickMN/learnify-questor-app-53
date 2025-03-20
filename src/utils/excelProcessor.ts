@@ -1,3 +1,4 @@
+
 import * as XLSX from "xlsx";
 import { MCQ, Flashcard, TestQuestion } from "@/utils/types";
 
@@ -63,7 +64,7 @@ export const fetchAndProcessGithubExcel = async (): Promise<{
         testQuestions
       };
     } catch (error) {
-      console.error(`Error with URL ${GITHUB_URLS[0]}:`, error);
+      console.error(`Error with URL ${url}:`, error);
       lastError = error as Error;
     }
   }

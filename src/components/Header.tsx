@@ -4,12 +4,13 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, Upload } from "lucide-react";
 import { ModeToggle } from "./ModeToggle";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
+import { useData } from "@/context/DataContext";
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
+  const { handleExcelUpload } = useData();
 
   const handleUploadClick = () => {
     if (fileInputRef.current) {
@@ -23,33 +24,22 @@ const Header: React.FC = () => {
 
     // Check if the file is an Excel file
     if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
-      toast({
-        title: "Invalid file format",
+      toast("Invalid file format", {
         description: "Please upload an Excel file (.xlsx or .xls)",
-        variant: "destructive",
       });
       return;
     }
 
-    // Create a FormData object to send the file
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
-      // Trigger an event to handle the upload in a parent component
-      const event = new CustomEvent('excel-upload', { detail: { file } });
-      window.dispatchEvent(event);
-      
-      toast({
-        title: "File uploaded",
+      await handleExcelUpload(file);
+      toast("File uploaded", {
         description: `${file.name} has been uploaded successfully`,
       });
     } catch (error) {
-      toast({
-        title: "Upload failed",
+      toast("Upload failed", {
         description: "An error occurred while uploading the file",
-        variant: "destructive",
       });
+      console.error("Upload error:", error);
     }
   };
 
