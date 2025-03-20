@@ -27,14 +27,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({
     const loadGithubExcel = async () => {
       setLoading(true);
       try {
+        console.log("Attempting to load Excel file from GitHub...");
         const data = await fetchAndProcessGithubExcel();
+        console.log("Excel data loaded successfully", data);
         setFlashcards(data.flashcards);
         setMCQs(data.mcqs);
         setTestQuestions(data.testQuestions);
         toast.success("Excel data loaded successfully from GitHub");
       } catch (error) {
         console.error("Error loading Excel file from GitHub:", error);
-        toast.error("Error loading Excel file from GitHub");
+        toast.error("Error loading Excel file from GitHub. Please try uploading manually.");
       } finally {
         setLoading(false);
       }

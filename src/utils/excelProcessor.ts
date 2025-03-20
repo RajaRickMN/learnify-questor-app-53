@@ -10,13 +10,22 @@ export const fetchAndProcessGithubExcel = async (): Promise<{
   mcqs: MCQ[];
   testQuestions: TestQuestion[];
 }> => {
+  // Updated to the correct raw GitHub URL
   const GITHUB_RAW_URL = "https://raw.githubusercontent.com/RajaRickMN/learnify-questor-app-53/main/app.xlsx";
   
   try {
-    const response = await fetch(GITHUB_RAW_URL);
+    // First try the updated URL
+    let response = await fetch(GITHUB_RAW_URL);
     
+    // If that fails, try an alternative URL format (blob instead of raw)
     if (!response.ok) {
-      throw new Error(`Failed to fetch Excel file: ${response.status}`);
+      console.log("First URL attempt failed, trying alternate URL");
+      const ALT_GITHUB_URL = "https://github.com/RajaRickMN/learnify-questor-app-53/blob/main/app.xlsx?raw=true";
+      response = await fetch(ALT_GITHUB_URL);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch Excel file: ${response.status}`);
+      }
     }
     
     const arrayBuffer = await response.arrayBuffer();
