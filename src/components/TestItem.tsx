@@ -11,6 +11,17 @@ interface TestItemProps {
   onStatusChange: (id: string | number, status: QuestionStatus) => void;
 }
 
+// Helper function to format text with newlines
+const formatText = (text: string) => {
+  if (!text) return '';
+  return text.split('\\n').map((line, i) => (
+    <React.Fragment key={i}>
+      {line}
+      {i < text.split('\\n').length - 1 && <br />}
+    </React.Fragment>
+  ));
+};
+
 const TestItem: React.FC<TestItemProps> = ({ question, onStatusChange }) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -64,7 +75,7 @@ const TestItem: React.FC<TestItemProps> = ({ question, onStatusChange }) => {
       </div>
       
       <div className="mt-4">
-        <h3 className="text-xl font-medium mb-6">{question.question}</h3>
+        <h3 className="text-xl font-medium mb-6">{formatText(question.question)}</h3>
         
         <div className="space-y-3">
           {[
@@ -86,7 +97,7 @@ const TestItem: React.FC<TestItemProps> = ({ question, onStatusChange }) => {
                 <div className="flex items-center justify-center rounded-full w-6 h-6 border border-current mr-3 flex-shrink-0">
                   {option.key.toUpperCase()}
                 </div>
-                <div className="flex-1">{option.text}</div>
+                <div className="flex-1">{formatText(option.text)}</div>
                 {selectedOption === option.key && option.key === question.key && (
                   <CheckCircle className="h-5 w-5 text-status-correct ml-2 flex-shrink-0" />
                 )}
@@ -104,7 +115,7 @@ const TestItem: React.FC<TestItemProps> = ({ question, onStatusChange }) => {
               <AlertCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
               <div>
                 <p className="font-medium">Explanation</p>
-                <p className="text-muted-foreground mt-1">{question.explanation}</p>
+                <p className="text-muted-foreground mt-1">{formatText(question.explanation)}</p>
               </div>
             </div>
           </div>

@@ -11,6 +11,17 @@ interface MCQItemProps {
   onStatusChange: (id: string | number, status: QuestionStatus) => void;
 }
 
+// Helper function to format text with newlines
+const formatText = (text: string) => {
+  if (!text) return '';
+  return text.split('\\n').map((line, i) => (
+    <React.Fragment key={i}>
+      {line}
+      {i < text.split('\\n').length - 1 && <br />}
+    </React.Fragment>
+  ));
+};
+
 const MCQItem: React.FC<MCQItemProps> = ({ mcq, onStatusChange }) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
@@ -62,7 +73,7 @@ const MCQItem: React.FC<MCQItemProps> = ({ mcq, onStatusChange }) => {
       </div>
       
       <div className="mt-4">
-        <h3 className="text-xl font-medium mb-6">{mcq.question}</h3>
+        <h3 className="text-xl font-medium mb-6">{formatText(mcq.question)}</h3>
         
         <div className="space-y-3">
           {[
@@ -84,7 +95,7 @@ const MCQItem: React.FC<MCQItemProps> = ({ mcq, onStatusChange }) => {
                 <div className="flex items-center justify-center rounded-full w-6 h-6 border border-current mr-3 flex-shrink-0">
                   {option.key.toUpperCase()}
                 </div>
-                <div className="flex-1">{option.text}</div>
+                <div className="flex-1">{formatText(option.text)}</div>
                 {selectedOption === option.key && option.key === mcq.key && (
                   <CheckCircle className="h-5 w-5 text-status-correct ml-2 flex-shrink-0" />
                 )}
@@ -102,7 +113,7 @@ const MCQItem: React.FC<MCQItemProps> = ({ mcq, onStatusChange }) => {
               <AlertCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
               <div>
                 <p className="font-medium">Explanation</p>
-                <p className="text-muted-foreground mt-1">{mcq.explanation}</p>
+                <p className="text-muted-foreground mt-1">{formatText(mcq.explanation)}</p>
               </div>
             </div>
           </div>
